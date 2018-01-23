@@ -156,7 +156,7 @@ function processCycle() {
     sg($object_link.".DiscSize",$disc['size']);
     sg($object_link.".DiscFree",$disc['free']);
     $uptime = $system->getUpTime();
-    sg($object_link.".Uptime",$uptime);
+    sg($object_link.".SystemUptime",$uptime);
     
  }
 /**
