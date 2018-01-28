@@ -1,0 +1,122 @@
+
+<!-- Table 'sensors' edit -->
+<form action="?" method="post" enctype="multipart/form-data" name="frmEdit" class="form-horizontal">
+[#if OK#]
+<div class="alert alert-success"><#LANG_DATA_SAVED#></div>
+[#endif OK#]
+[#if ERR#]
+<div class="alert alert-error"><#LANG_FILLOUT_REQURED#></div>
+[#endif ERR#]
+<fieldset>
+[#if ID=""#]
+<legend><#LANG_NEW_RECORD#></legend>
+[#endif ID#]
+<!-- TITLE (varchar) -->
+<div class="form-group">
+ <label class="col-lg-3 control-label"[#if ERR_TITLE#] style="color:red;font-weight:bold"[#endif#]>
+ <#LANG_TITLE#>:
+ (*)
+ </label>
+ <div class="col-lg-4"><input type="text" class="form-control" name="title" value="[#TITLE#]" id="title"></div>
+</div>
+<!-- ENABLE -->
+<div class="form-group">
+ <label class="col-lg-3 control-label">Enable:</label>
+ <div class="col-lg-4"><input type="checkbox" name="enable" value="1"[#if ENABLE="1"#] checked[#endif#]></div>
+</div> 
+<!-- PROVIDER (varchar) -->
+<div class="form-group">
+ <label class="col-lg-3 control-label"[#if ERR_PROVIDER#] style="color:red;font-weight:bold"[#endif#]>
+ Provider:
+ </label>
+ <div class="col-lg-4">
+        <select name="provider" id="provider" class="form-control" onchange="OnChangeProvider(this);">
+            <option value="local"[#if PROVIDER="local"#] selected[#endif#]>Local
+            <option value="custom"[#if PROVIDER="custom"#] selected[#endif#]>Custom
+            <!--<option value="ohm"[#if PROVIDER="ohm"#] selected[#endif#]>Open Hardware Monitor-->
+        </select>
+ </div>
+</div>
+<!-- PROVIDER_SETTINGS (varchar) -->
+<div class="form-group">
+ <label class="col-lg-3 control-label"[#if ERR_PROVIDER_SETTINGS#] style="color:red;font-weight:bold"[#endif#]>
+ Provider settings:
+ </label>
+ <div class="col-lg-4"><input type="text" class="form-control" name="provider_settings" value="[#PROVIDER_SETTINGS#]" id="provider_settings"></div>
+</div>
+<!-- TYPE_SENSOR (varchar) -->
+<div class="form-group">
+ <label class="col-lg-3 control-label"[#if ERR_TYPE_SENSOR#] style="color:red;font-weight:bold"[#endif#]>
+ Type sensor:
+ </label>
+ <div class="col-lg-4">
+    <select name="type_sensor" id="type_sensor" class="form-control" onchange="OnChangeType(this);">
+            <option value=""[#if TYPE_SENSOR=""#] selected[#endif#]>
+            <option value="cpu"[#if TYPE_SENSOR="cpu"#] selected[#endif#]>CPU
+            <option value="ram"[#if TYPE_SENSOR="ram"#] selected[#endif#]>RAM
+            <option value="hdd"[#if TYPE_SENSOR="hdd"#] selected[#endif#]>HDD
+            <option value="uptime"[#if TYPE_SENSOR="uptime"#] selected[#endif#]>Uptime
+        </select>
+ </div>
+</div>
+<!-- SUBTYPE_SENSOR (varchar) -->
+<div class="form-group">
+ <label class="col-lg-3 control-label"[#if ERR_SUBTYPE_SENSOR#] style="color:red;font-weight:bold"[#endif#]>
+ Subtype sensor:
+ </label>
+ <div class="col-lg-4">
+    <select name="subtype_sensor" id="subtype_sensor" class="form-control" onchange="OnChangeSubType(this);">
+        <option value=""[#if SUBTYPE_SENSOR=""#] selected[#endif#]>
+        <option value="total"[#if SUBTYPE_SENSOR="total"#] selected[#endif#]>Total
+        <option value="free"[#if SUBTYPE_SENSOR="free"#] selected[#endif#]>Free
+        <option value="use"[#if SUBTYPE_SENSOR="use"#] selected[#endif#]>Use
+    </select>
+ </div>
+</div>
+<!-- UNIT_SENSOR (varchar) -->
+<div class="form-group">
+ <label class="col-lg-3 control-label"[#if ERR_UNIT_SENSOR#] style="color:red;font-weight:bold"[#endif#]>
+ Unit sensor:
+ </label>
+ <div class="col-lg-4">
+    <select name="unit_sensor" id="unit_sensor" class="form-control">
+        <option value=""[#if UNIT_SENSOR=""#] selected[#endif#]>
+        <option value="byte"[#if UNIT_SENSOR="byte"#] selected[#endif#]>byte
+        <option value="kbyte"[#if UNIT_SENSOR="kbyte"#] selected[#endif#]>KB
+        <option value="mbyte"[#if UNIT_SENSOR="mbyte"#] selected[#endif#]>MB
+        <option value="gbyte"[#if UNIT_SENSOR="gbyte"#] selected[#endif#]>GB
+        <option value="procent"[#if UNIT_SENSOR="procent"#] selected[#endif#]>Procent
+    </select>
+ </div>
+</div>
+<!-- LINKED_OBJECT (varchar) -->
+<div class="form-group">
+ <label class="col-lg-3 control-label"[#if ERR_LINKED_OBJECT#] style="color:red;font-weight:bold"[#endif#]>
+ <#LANG_LINKED_OBJECT#>:
+ </label>
+ <div class="col-lg-4"><input type="text" class="form-control" name="linked_object" value="[#LINKED_OBJECT#]" id="linked_object"></div>
+</div>
+<!-- LINKED_PROPERTY (varchar) -->
+<div class="form-group">
+ <label class="col-lg-3 control-label"[#if ERR_LINKED_PROPERTY#] style="color:red;font-weight:bold"[#endif#]>
+ <#LANG_LINKED_PROPERTY#>:
+ </label>
+ <div class="col-lg-4"><input type="text" class="form-control" name="linked_property" value="[#LINKED_PROPERTY#]" id="linked_property"></div>
+</div>
+[#module name="linkedobject" object_field="linked_object" property_field="linked_property" method_field="linked_method"#]
+<div class="form-group">
+        <div class="col-lg-offset-3 col-lg-4">
+ [#if ID!=""#]
+ <button type="submit" name="subm" value="Submit" class="btn btn-primary"><#LANG_SUBMIT#></button>
+ [#else ID#]
+ <button type="submit" name="subm" value="Add" class="btn btn-primary"><#LANG_ADD#></button>
+ [#endif ID#]
+ <a href="?" class="btn btn-default "><#LANG_CANCEL#></a>
+<input type="hidden" name="id" value="<#ID#>">
+<input type="hidden" name="view_mode" value="<#VIEW_MODE#>">
+<input type="hidden" name="edit_mode" value="<#EDIT_MODE#>">
+<input type="hidden" name="mode" value="update">
+        </div>
+</div>
+</fieldset>
+</form>

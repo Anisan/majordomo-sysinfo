@@ -4,7 +4,7 @@
 * @package project
 * @author Eraser <eraser1981@gmail.com>
 * @copyright http://majordomo.smartliving.ru/ (c)
-* @version 0.1 (wizard, 10:01:57 [Jan 23, 2018])
+* @version 0.2 (wizard, 20:01:09 [Jan 27, 2018])
 */
 //
 //
@@ -101,6 +101,7 @@ function run() {
   $out['EDIT_MODE']=$this->edit_mode;
   $out['MODE']=$this->mode;
   $out['ACTION']=$this->action;
+  $out['TAB']=$this->tab;
   $this->data=$out;
   $p=new parser(DIR_TEMPLATES.$this->name."/".$this->name.".html", $this->data, $this);
   $this->result=$p->result;
@@ -113,8 +114,8 @@ function run() {
 * @access public
 */
 function admin(&$out) {
-    $this->getConfig();
-    if ((time() - gg('cycle_sysinfoRun')) < 60 ) {
+ $this->getConfig();
+ if ((time() - gg('cycle_sysinfoRun')) < 60 ) {
         $out['CYCLERUN'] = 1;
     } else {
         $out['CYCLERUN'] = 0;
@@ -132,6 +133,22 @@ function admin(&$out) {
         $this->saveConfig();
         $this->redirect("?");
     }
+
+ if (isset($this->data_source) && !$_GET['data_source'] && !$_POST['data_source']) {
+  $out['SET_DATASOURCE']=1;
+ }
+ if ($this->data_source=='sensors' || $this->data_source=='') {
+  if ($this->view_mode=='' || $this->view_mode=='search_sensors') {
+   $this->search_sensors($out);
+  }
+  if ($this->view_mode=='edit_sensors') {
+   $this->edit_sensors($out, $this->id);
+  }
+  if ($this->view_mode=='delete_sensors') {
+   $this->delete_sensors($this->id);
+   $this->redirect("?");
+  }
+ }
 }
 /**
 * FrontEnd
@@ -143,22 +160,103 @@ function admin(&$out) {
 function usual(&$out) {
  $this->admin($out);
 }
-
-function processCycle() {
-    $this->getConfig();
-    //to-do
-    $object_link=$this->config['OBJECT_LINK'];
-    $system = new SystemInfo();
-    sg($object_link.".CpuLoad",$system->getCpuLoadPercentage());
-    sg($object_link.".RamTotal",round($system->getRamTotal() / 1024 / 1024));
-    sg($object_link.".RamFree",round($system->getRamFree() / 1024 / 1024));
-    $disc = $system->getDiskSize(PHP_OS == 'WINNT' ? 'C:' : '/');
-    sg($object_link.".DiscSize",$disc['size']);
-    sg($object_link.".DiscFree",$disc['free']);
-    $uptime = $system->getUpTime();
-    sg($object_link.".SystemUptime",$uptime);
-    
+/**
+* sensors search
+*
+* @access public
+*/
+ function search_sensors(&$out) {
+  require(DIR_MODULES.$this->name.'/sensors_search.inc.php');
  }
+/**
+* sensors edit/add
+*
+* @access public
+*/
+ function edit_sensors(&$out, $id) {
+  require(DIR_MODULES.$this->name.'/sensors_edit.inc.php');
+ }
+/**
+* sensors delete record
+*
+* @access public
+*/
+ function delete_sensors($id) {
+  $rec=SQLSelectOne("SELECT * FROM sensors WHERE ID='$id'");
+  // some action for related tables
+  SQLExec("DELETE FROM sensors WHERE ID='".$rec['ID']."'");
+ }
+ function propertySetHandle($object, $property, $value) {
+  $this->getConfig();
+   $table='sensors';
+   $properties=SQLSelect("SELECT ID FROM $table WHERE LINKED_OBJECT LIKE '".DBSafe($object)."' AND LINKED_PROPERTY LIKE '".DBSafe($property)."'");
+   $total=count($properties);
+   if ($total) {
+    for($i=0;$i<$total;$i++) {
+     //to-do
+    }
+   }
+ }
+function processCycle() {
+ $this->getConfig();
+ $sensors = SQLSelect("SELECT * FROM sensors WHERE ENABLE=1");
+ $total_sensor=count($sensors);
+ //echo date("H:i:s") ."Count sensors = " . $total_sensor . PHP_EOL;
+ for($i=0;$i<$total_sensor;$i++) {
+   $value = "Not supported";
+   if ($sensors[$i]["PROVIDER"] == "custom")
+   {
+       $value = exec($sensors[$i]["PROVIDER_SETTINGS"]);
+   }
+   if ($sensors[$i]["PROVIDER"] == "local")
+   {
+       $system = new SystemInfo();
+       if ($sensors[$i]["TYPE_SENSOR"] == "cpu")
+         $value = round($system->getCpuLoadPercentage(),1);
+       if ($sensors[$i]["TYPE_SENSOR"] == "uptime")
+         $value = $system->getUpTime();
+       if ($sensors[$i]["TYPE_SENSOR"] == "ram")
+       {
+           $ramTotal = $system->getRamTotal();
+           $ramFree = $system->getRamFree();
+           if ($sensors[$i]["SUBTYPE_SENSOR"] == "total")
+             $value= $ramTotal;
+           if ($sensors[$i]["SUBTYPE_SENSOR"] == "free")
+             $value= $ramFree;
+           if ($sensors[$i]["SUBTYPE_SENSOR"] == "use")
+             $value= $ramTotal-$ramFree;
+           $value = $this->convert_unit($value,$ramTotal,$sensors[$i]["UNIT_SENSOR"]);
+       }
+       if ($sensors[$i]["TYPE_SENSOR"] == "hdd")
+       {
+           $disc = $system->getDiskSize($sensors[$i]["PROVIDER_SETTINGS"]);
+           $total = $disc['size'];
+           $free = $disc['free'];
+           if ($sensors[$i]["SUBTYPE_SENSOR"] == "total")
+             $value= $total;
+           if ($sensors[$i]["SUBTYPE_SENSOR"] == "free")
+             $value= $free;
+           if ($sensors[$i]["SUBTYPE_SENSOR"] == "use")
+             $value= $total-$free;
+           $value = $this->convert_unit($value,$total,$sensors[$i]["UNIT_SENSOR"]);
+       }
+   }
+   sg($sensors[$i]["LINKED_OBJECT"].".".$sensors[$i]["LINKED_PROPERTY"], $value);
+   //echo date("H:i:s") .$sensors[$i]["TITLE"]. " = " . $value . PHP_EOL;
+ }
+}
+ 
+function convert_unit($value,$total,$unit) {
+     if ($unit == "kbyte")
+       $value= round($value / 1024,1);
+     if ($unit == "mbyte")
+       $value= round($value / 1024 / 1024,1);
+     if ($unit == "gbyte")
+       $value= round($value / 1024 /1024 / 1024,1);
+     if ($unit == "procent")
+       $value= round($value * 100 / $total,2);
+     return $value;
+}
 /**
 * Install
 *
@@ -169,10 +267,46 @@ function processCycle() {
  function install($data='') {
   parent::install();
  }
+/**
+* Uninstall
+*
+* Module uninstall routine
+*
+* @access public
+*/
+ function uninstall() {
+  SQLExec('DROP TABLE IF EXISTS sensors');
+  parent::uninstall();
+ }
+/**
+* dbInstall
+*
+* Database installation routine
+*
+* @access private
+*/
+ function dbInstall($data = '') {
+/*
+sensors - 
+*/
+  $data = <<<EOD
+ sensors: ID int(10) unsigned NOT NULL auto_increment
+ sensors: TITLE varchar(100) NOT NULL DEFAULT ''
+ sensors: ENABLE int(3) unsigned NOT NULL DEFAULT '0'
+ sensors: PROVIDER varchar(255) NOT NULL DEFAULT ''
+ sensors: PROVIDER_SETTINGS varchar(255) NOT NULL DEFAULT ''
+ sensors: TYPE_SENSOR varchar(255) NOT NULL DEFAULT ''
+ sensors: SUBTYPE_SENSOR varchar(255) NOT NULL DEFAULT ''
+ sensors: UNIT_SENSOR varchar(255) NOT NULL DEFAULT ''
+ sensors: LINKED_OBJECT varchar(100) NOT NULL DEFAULT ''
+ sensors: LINKED_PROPERTY varchar(100) NOT NULL DEFAULT ''
+EOD;
+  parent::dbInstall($data);
+ }
 // --------------------------------------------------------------------
 }
 /*
 *
-* TW9kdWxlIGNyZWF0ZWQgSmFuIDIzLCAyMDE4IHVzaW5nIFNlcmdlIEouIHdpemFyZCAoQWN0aXZlVW5pdCBJbmMgd3d3LmFjdGl2ZXVuaXQuY29tKQ==
+* TW9kdWxlIGNyZWF0ZWQgSmFuIDI3LCAyMDE4IHVzaW5nIFNlcmdlIEouIHdpemFyZCAoQWN0aXZlVW5pdCBJbmMgd3d3LmFjdGl2ZXVuaXQuY29tKQ==
 *
 */

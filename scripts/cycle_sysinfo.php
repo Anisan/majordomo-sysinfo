@@ -15,6 +15,7 @@ $sysinfo_module->getConfig();
 echo date("H:i:s") . " running " . basename(__FILE__) . PHP_EOL;
 $latest_check=0;
 $checkEvery=$sysinfo_module->config['UPDATE_TIMEOUT'];
+echo date("H:i:s") . " timeout " . $checkEvery . " sec" . PHP_EOL;
 while (1)
 {
    setGlobal((str_replace('.php', '', basename(__FILE__))) . 'Run', time(), 1);
