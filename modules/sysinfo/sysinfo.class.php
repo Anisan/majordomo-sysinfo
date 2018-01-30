@@ -115,7 +115,7 @@ function run() {
 */
 function admin(&$out) {
  $this->getConfig();
- if ((time() - gg('cycle_sysinfoRun')) < 60 ) {
+ if ((time() - gg('cycle_sysinfoRun')) < $this->config['UPDATE_TIMEOUT']*2 ) {
         $out['CYCLERUN'] = 1;
     } else {
         $out['CYCLERUN'] = 0;
@@ -241,10 +241,38 @@ function processCycle() {
            $value = $this->convert_unit($value,$total,$sensors[$i]["UNIT_SENSOR"]);
        }
    }
+   if ($sensors[$i]["PROVIDER"] == "ohm")
+   {
+        $json = getUrl($sensors[$i]['PROVIDER_SETTINGS'],5);
+        if ($json !="")
+        {
+            $data = json_decode($json,true);
+            $sens = $this->find_sensor($data["Children"],$sensors[$i]["TYPE_SENSOR"]);
+            if (count($sens)>0)
+                $value = $sens[0]["VALUE"];
+        }
+        else
+            $value = "Error";
+   }
    sg($sensors[$i]["LINKED_OBJECT"].".".$sensors[$i]["LINKED_PROPERTY"], $value);
    //echo date("H:i:s") .$sensors[$i]["TITLE"]. " = " . $value . PHP_EOL;
  }
 }
+
+function find_sensor($data, $id, &$in_arr = array())
+  {
+      foreach ($data as $child)
+      {
+        if (count($child["Children"])>0)
+          $this->find_sensor($child["Children"],$id,$in_arr);
+        else
+        {
+            if ($child['id']==$id)
+               $in_arr[] = array('ID'=>$child['id'],'VALUE'=>$child['Value']);
+        }
+      }
+      return $in_arr;
+  }
  
 function convert_unit($value,$total,$unit) {
      if ($unit == "kbyte")

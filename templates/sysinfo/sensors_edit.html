@@ -25,6 +25,64 @@
  <div class="col-lg-4"><input type="checkbox" name="enable" value="1"[#if ENABLE="1"#] checked[#endif#]></div>
 </div> 
 <!-- PROVIDER (varchar) -->
+<script type="text/javascript">
+	function OnChangeProvider (select) {    
+	    var fSetting = document.getElementById('div_setting');
+		var fType = document.getElementById('div_type');
+		var fSubtype = document.getElementById('div_subtype');
+		var fUnit = document.getElementById('div_unit');
+        if (select.value == "local")
+        {
+            fSetting.style.display = 'none';
+            fType.style.display = 'block';
+            fSubtype.style.display = 'block';
+            fUnit.style.display = 'block';
+        }
+        if (select.value == "custom")
+        {
+            fSetting.style.display = 'block';
+            fType.style.display = 'none';
+            fSubtype.style.display = 'none';
+            fUnit.style.display = 'none';
+        }
+        if (select.value == "ohm")
+        {
+            fSetting.style.display = 'block';
+            fType.style.display = 'block';
+            fSubtype.style.display = 'none';
+            fUnit.style.display = 'none';
+        }
+	}
+    function OnChangeType (select) {    
+	    var fSetting = document.getElementById('div_setting');
+		var fSubtype = document.getElementById('div_subtype');
+		var fUnit = document.getElementById('div_unit');
+        if (select.value == "cpu")
+        {
+            fSetting.style.display = 'none';
+            fSubtype.style.display = 'none';
+            fUnit.style.display = 'none';
+        }
+        if (select.value == "ram")
+        {
+            fSetting.style.display = 'none';
+            fSubtype.style.display = 'block';
+            fUnit.style.display = 'block';
+        }
+        if (select.value == "hdd")
+        {
+            fSetting.style.display = 'block';
+            fSubtype.style.display = 'block';
+            fUnit.style.display = 'block';
+        }
+        if (select.value == "uptime")
+        {
+            fSetting.style.display = 'none';
+            fSubtype.style.display = 'none';
+            fUnit.style.display = 'none';
+        }
+	}
+</script> 
 <div class="form-group">
  <label class="col-lg-3 control-label"[#if ERR_PROVIDER#] style="color:red;font-weight:bold"[#endif#]>
  Provider:
@@ -33,34 +91,33 @@
         <select name="provider" id="provider" class="form-control" onchange="OnChangeProvider(this);">
             <option value="local"[#if PROVIDER="local"#] selected[#endif#]>Local
             <option value="custom"[#if PROVIDER="custom"#] selected[#endif#]>Custom
-            <!--<option value="ohm"[#if PROVIDER="ohm"#] selected[#endif#]>Open Hardware Monitor-->
+            <option value="ohm"[#if PROVIDER="ohm"#] selected[#endif#]>Open Hardware Monitor
         </select>
  </div>
 </div>
 <!-- PROVIDER_SETTINGS (varchar) -->
-<div class="form-group">
+<div class="form-group" id="div_setting">
  <label class="col-lg-3 control-label"[#if ERR_PROVIDER_SETTINGS#] style="color:red;font-weight:bold"[#endif#]>
  Provider settings:
  </label>
  <div class="col-lg-4"><input type="text" class="form-control" name="provider_settings" value="[#PROVIDER_SETTINGS#]" id="provider_settings"></div>
 </div>
 <!-- TYPE_SENSOR (varchar) -->
-<div class="form-group">
+<div class="form-group" id="div_type">
  <label class="col-lg-3 control-label"[#if ERR_TYPE_SENSOR#] style="color:red;font-weight:bold"[#endif#]>
  Type sensor:
  </label>
  <div class="col-lg-4">
     <select name="type_sensor" id="type_sensor" class="form-control" onchange="OnChangeType(this);">
             <option value=""[#if TYPE_SENSOR=""#] selected[#endif#]>
-            <option value="cpu"[#if TYPE_SENSOR="cpu"#] selected[#endif#]>CPU
-            <option value="ram"[#if TYPE_SENSOR="ram"#] selected[#endif#]>RAM
-            <option value="hdd"[#if TYPE_SENSOR="hdd"#] selected[#endif#]>HDD
-            <option value="uptime"[#if TYPE_SENSOR="uptime"#] selected[#endif#]>Uptime
+            [#begin SENSORS#]
+                <option value="[#ID#]"[#if ID="<#TYPE_SENSOR#>"#] selected[#endif#]>[#TITLE#]
+            [#end SENSORS#]
         </select>
  </div>
 </div>
 <!-- SUBTYPE_SENSOR (varchar) -->
-<div class="form-group">
+<div class="form-group"  id="div_subtype">
  <label class="col-lg-3 control-label"[#if ERR_SUBTYPE_SENSOR#] style="color:red;font-weight:bold"[#endif#]>
  Subtype sensor:
  </label>
@@ -74,7 +131,7 @@
  </div>
 </div>
 <!-- UNIT_SENSOR (varchar) -->
-<div class="form-group">
+<div class="form-group"  id="div_unit">
  <label class="col-lg-3 control-label"[#if ERR_UNIT_SENSOR#] style="color:red;font-weight:bold"[#endif#]>
  Unit sensor:
  </label>
@@ -120,3 +177,8 @@
 </div>
 </fieldset>
 </form>
+
+<script type="text/javascript">  
+	OnChangeProvider ( document.getElementById('provider') );
+	OnChangeType ( document.getElementById('type_sensor') );
+</script> 
