@@ -92,7 +92,7 @@ class SystemInfo
             }
         } else {
             $lines = null;
-            exec(sprintf('df /P %s', $path), $lines);
+            exec(sprintf('df -P %s', $path), $lines);
             foreach ($lines as $index => $line) {
                 if ($index != 1) {
                     continue;

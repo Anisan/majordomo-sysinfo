@@ -87,7 +87,7 @@
     }
     else
     {
-        $json = getUrl($rec['PROVIDER_SETTINGS']+"/data.json",5);
+        $json = getUrl($rec['PROVIDER_SETTINGS'].'/data.json',5);
         $data = json_decode($json,true);
         $type_sensors = find_sensor($data["Children"],$data["Text"],$rec['PROVIDER_SETTINGS']);
         array_unshift($type_sensors,array('ID'=>"All",'TITLE'=>"All","IMAGE"=>"../templates/sysinfo/img/computer.png"));

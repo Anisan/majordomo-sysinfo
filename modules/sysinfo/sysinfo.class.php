@@ -248,12 +248,12 @@ function processCycle() {
    }
    if ($sensors[$i]["PROVIDER"] == "ohm")
    {
-        $json = getUrl($sensors[$i]['PROVIDER_SETTINGS']+"/data.json",5);
+        $json = getUrl($sensors[$i]['PROVIDER_SETTINGS']."/data.json",5);
         if ($json !="")
         {
             $data = json_decode($json,true);
             $sens = $this->find_sensor($data["Children"],$sensors[$i]["TYPE_SENSOR"]);
-            print_r($sens);
+            //print_r($sens);
             if (count($sens)>0)
             {
                 foreach ($sens as $sensor)
