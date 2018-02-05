@@ -30,9 +30,9 @@
 <tr style="height:52px" class="hover_btn2">
  <td style="vertical-align:middle">
   [#if ENABLE==1#]
-   <b>On</b>
+   <IMG SRC="../templates/sysinfo/img/on.png">
   [#else#]
-   Off
+   <IMG SRC="../templates/sysinfo/img/off.png">
   [#endif#]
  </td>
  <td style="vertical-align:middle"
@@ -44,7 +44,7 @@
  <td style="vertical-align:middle"
    >
   [#if PROVIDER!=""#]
-   [#PROVIDER#]
+    <IMG SRC="../templates/sysinfo/img/[#PROVIDER#].png" width="20" height="20">
   [#else#]
    &nbsp;
   [#endif#]

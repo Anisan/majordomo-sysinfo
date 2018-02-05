@@ -204,9 +204,13 @@ function processCycle() {
  //echo date("H:i:s") ."Count sensors = " . $total_sensor . PHP_EOL;
  for($i=0;$i<$total_sensor;$i++) {
    $value = "Not supported";
+   $property = $sensors[$i]["LINKED_OBJECT"].".".$sensors[$i]["LINKED_PROPERTY"];
+   if ($sensors[$i]["LINKED_PROPERTY"]=='')
+    $property = $sensors[$i]["LINKED_OBJECT"].".".$sensors[$i]["TITLE"];
    if ($sensors[$i]["PROVIDER"] == "custom")
    {
        $value = exec($sensors[$i]["PROVIDER_SETTINGS"]);
+       sg($property, $value);
    }
    if ($sensors[$i]["PROVIDER"] == "local")
    {
@@ -240,22 +244,32 @@ function processCycle() {
              $value= $total-$free;
            $value = $this->convert_unit($value,$total,$sensors[$i]["UNIT_SENSOR"]);
        }
+       sg($property, $value);
    }
    if ($sensors[$i]["PROVIDER"] == "ohm")
    {
-        $json = getUrl($sensors[$i]['PROVIDER_SETTINGS'],5);
+        $json = getUrl($sensors[$i]['PROVIDER_SETTINGS']+"/data.json",5);
         if ($json !="")
         {
             $data = json_decode($json,true);
             $sens = $this->find_sensor($data["Children"],$sensors[$i]["TYPE_SENSOR"]);
+            print_r($sens);
             if (count($sens)>0)
-                $value = $sens[0]["VALUE"];
+            {
+                foreach ($sens as $sensor)
+                {
+                    $svalue = $sensor["VALUE"];
+                    if (strpos($svalue,' '))
+                        $svalue = substr($svalue, 0,strpos($svalue,' '));
+                    $value = $svalue;
+                    if ($sensors[$i]["TYPE_SENSOR"]!='All')
+                        sg($property, $value);
+                    else
+                        sg($sensors[$i]["LINKED_OBJECT"].".".$sensor["TITLE"], $value);
+                }
+            }
         }
-        else
-            $value = "Error";
    }
-   sg($sensors[$i]["LINKED_OBJECT"].".".$sensors[$i]["LINKED_PROPERTY"], $value);
-   //echo date("H:i:s") .$sensors[$i]["TITLE"]. " = " . $value . PHP_EOL;
  }
 }
 
@@ -267,8 +281,15 @@ function find_sensor($data, $id, &$in_arr = array())
           $this->find_sensor($child["Children"],$id,$in_arr);
         else
         {
-            if ($child['id']==$id)
-               $in_arr[] = array('ID'=>$child['id'],'VALUE'=>$child['Value']);
+            if ($id == 'All')
+            {
+                $in_arr[] = array('ID'=>$child['id'],'TITLE'=>$child['Text'],'VALUE'=>$child['Value']);
+            }
+            else
+            {
+                if ($child['id']==$id)
+                    $in_arr[] = array('ID'=>$child['id'],'TITLE'=>$child['Text'],'VALUE'=>$child['Value']);
+            }
         }
       }
       return $in_arr;

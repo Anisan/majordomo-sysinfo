@@ -1,3 +1,5 @@
+<link rel="stylesheet" href="../templates/sysinfo/bootstrap-select.min.css">
+<script src="../templates/sysinfo/bootstrap-select.min.js"></script>
 
 <!-- Table 'sensors' edit -->
 <form action="?" method="post" enctype="multipart/form-data" name="frmEdit" class="form-horizontal">
@@ -88,10 +90,10 @@
  Provider:
  </label>
  <div class="col-lg-4">
-        <select name="provider" id="provider" class="form-control" onchange="OnChangeProvider(this);">
-            <option value="local"[#if PROVIDER="local"#] selected[#endif#]>Local
-            <option value="custom"[#if PROVIDER="custom"#] selected[#endif#]>Custom
-            <option value="ohm"[#if PROVIDER="ohm"#] selected[#endif#]>Open Hardware Monitor
+        <select name="provider" id="provider" class="selectpicker form-control" onchange="OnChangeProvider(this);">
+            <option data-content="<img src='../templates/sysinfo/img/local.png' width='20' height='20'> Local" value="local"[#if PROVIDER="local"#] selected[#endif#]>Local
+            <option data-content="<img src='../templates/sysinfo/img/custom.png' width='20' height='20'> Custom" value="custom"[#if PROVIDER="custom"#] selected[#endif#]>Custom
+            <option data-content="<img src='../templates/sysinfo/img/ohm.png' width='20' height='20'> Open Hardware Monitor" value="ohm"[#if PROVIDER="ohm"#] selected[#endif#]>Open Hardware Monitor
         </select>
  </div>
 </div>
@@ -108,12 +110,11 @@
  Type sensor:
  </label>
  <div class="col-lg-4">
-    <select name="type_sensor" id="type_sensor" class="form-control" onchange="OnChangeType(this);">
-            <option value=""[#if TYPE_SENSOR=""#] selected[#endif#]>
+    <select name="type_sensor" id="type_sensor" class="selectpicker form-control" onchange="OnChangeType(this);">
             [#begin SENSORS#]
-                <option value="[#ID#]"[#if ID="<#TYPE_SENSOR#>"#] selected[#endif#]>[#TITLE#]
+                <option data-content="<img src='[#IMAGE#]'> [#TITLE#]" value="[#ID#]"[#if ID="<#TYPE_SENSOR#>"#] selected[#endif#]>[#TITLE#]
             [#end SENSORS#]
-        </select>
+    </select>
  </div>
 </div>
 <!-- SUBTYPE_SENSOR (varchar) -->
@@ -122,11 +123,10 @@
  Subtype sensor:
  </label>
  <div class="col-lg-4">
-    <select name="subtype_sensor" id="subtype_sensor" class="form-control" onchange="OnChangeSubType(this);">
-        <option value=""[#if SUBTYPE_SENSOR=""#] selected[#endif#]>
-        <option value="total"[#if SUBTYPE_SENSOR="total"#] selected[#endif#]>Total
-        <option value="free"[#if SUBTYPE_SENSOR="free"#] selected[#endif#]>Free
-        <option value="use"[#if SUBTYPE_SENSOR="use"#] selected[#endif#]>Use
+    <select name="subtype_sensor" id="subtype_sensor" class="selectpicker form-control" onchange="OnChangeSubType(this);">
+        <option data-content="<img src='../templates/sysinfo/img/total.png'> Total" value=""[#if SUBTYPE_SENSOR=""#] selected[#endif#]>Total
+        <option data-content="<img src='../templates/sysinfo/img/free.png'> Free" value="free"[#if SUBTYPE_SENSOR="free"#] selected[#endif#]>Free
+        <option data-content="<img src='../templates/sysinfo/img/use.png'> Use" value="use"[#if SUBTYPE_SENSOR="use"#] selected[#endif#]>Use
     </select>
  </div>
 </div>
