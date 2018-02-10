@@ -65,7 +65,7 @@
   
   $type_sensors = array();
   
-  function find_sensor($data, $text, $url, $img, &$in_arr = array())
+  function find_sensor($data, $text, $url, $img = '', &$in_arr = array())
   {
       foreach ($data as $child)
       {

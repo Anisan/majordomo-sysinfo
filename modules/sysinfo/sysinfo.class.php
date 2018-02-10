@@ -261,7 +261,7 @@ function processCycle() {
                     $svalue = $sensor["VALUE"];
                     if (strpos($svalue,' '))
                         $svalue = substr($svalue, 0,strpos($svalue,' '));
-                    $value = $svalue;
+                    $value = str_replace(',','.',$svalue);
                     if ($sensors[$i]["TYPE_SENSOR"]!='All')
                         sg($property, $value);
                     else
