@@ -1,10 +1,6 @@
  <!-- table sensors search -->
  
- [#if VIEW_MODE="search_sensors" || VIEW_MODE=""#]
- <div class="float-right">
-	<button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#about">About&nbsp;&nbsp;<span class="glyphicon glyphicon-info-sign icon-white"></span>
-	</button>
-</div>
+[#if VIEW_MODE="search_sensors" || VIEW_MODE=""#]
 <div>
  SystemInfo
  &nbsp;
@@ -15,6 +11,8 @@
 	[#else#]
 		<span class="label label-danger" title="Статус цикла">Цикл остановлен</span>
 	[#endif#]
+	<button class="btn btn-primary btn-sm float-right" data-toggle="modal" data-target="#about">About&nbsp;&nbsp;<span class="glyphicon glyphicon-info-sign icon-white"></span>
+	</button>
 </div>
 
 <div class="collapse" id='api_settings'>
@@ -35,10 +33,8 @@
 </form>
 </div>
 
-</div>
-
-  [#inc sensors_search_admin.html#]
- [#endif VIEW_MODE#]
+[#inc sensors_search_admin.html#]
+[#endif VIEW_MODE#]
  <!-- / table sensors search -->
  <!-- table sensors edit -->
  [#if VIEW_MODE="edit_sensors"#]
