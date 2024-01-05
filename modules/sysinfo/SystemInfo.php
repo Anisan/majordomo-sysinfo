@@ -244,7 +244,7 @@ class SystemInfo
             // Seconds
             list($seconds) = explode(' ', $contents, 1);
             // Get it textual, as in days/minutes/hours/etc
-            $uptime = $this->secondsConvert(ceil($seconds));
+            $uptime = $this->secondsConvert(ceil(floatval($seconds)));
             // Now find out when the system was booted
             $lines = array();
             $fh = fopen('/proc/stat', 'r');
